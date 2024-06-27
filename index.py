@@ -113,11 +113,11 @@ footer    {visibility:hidden;}
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Sidebar content
-audio_source = st.sidebar.selectbox("Select audio source:", ("Local Upload", "Internet Link", "Video File"))
+audio_source = st.sidebar.selectbox("Select audio source:", ("Audio FIle", "Video File"))
 audio_file = None
 temp_files = []  # List to keep track of temporary files
 
-if audio_source == "Local Upload":
+if audio_source == "Audio File":
     audio_file = st.sidebar.file_uploader("Upload your audio file", type=None)
     if audio_file is not None:
         # Workaround to keep file accessible
@@ -128,19 +128,19 @@ if audio_source == "Local Upload":
         st.sidebar.audio(BytesIO(audio_bytes), format="audio/mp3")
         temp_files.append(audio_path)
 
-elif audio_source == "Internet Link":
-    audio_link = st.sidebar.text_input("Enter the URL of the audio file")
-    if audio_link:
-        try:
-            audio_data = requests.get(audio_link).content
-            audio_file = BytesIO(audio_data)
-            audio_path = "downloaded_audio.mp3"  # Temporary file path
-            with open(audio_path, 'wb') as f:
-                f.write(audio_data)
-            st.sidebar.audio(audio_file)
-            temp_files.append(audio_path)
-        except requests.RequestException as e:
-            st.sidebar.error(f"Failed to download audio: {str(e)}")
+# elif audio_source == "Internet Link":
+#     audio_link = st.sidebar.text_input("Enter the URL of the audio file")
+#     if audio_link:
+#         try:
+#             audio_data = requests.get(audio_link).content
+#             audio_file = BytesIO(audio_data)
+#             audio_path = "downloaded_audio.mp3"  # Temporary file path
+#             with open(audio_path, 'wb') as f:
+#                 f.write(audio_data)
+#             st.sidebar.audio(audio_file)
+#             temp_files.append(audio_path)
+#         except requests.RequestException as e:
+#             st.sidebar.error(f"Failed to download audio: {str(e)}")
 
 elif audio_source == "Video File":
     video_file = st.sidebar.file_uploader("Upload your video file", type=['mp4', 'avi', 'mov'])
