@@ -8,6 +8,13 @@ import librosa
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
 
+hide_st_style= """
+<style>
+#MainMenu {visibility:hidden;}
+footer    {visibility:hidden;}
+</style>
+"""
+st.markdown(hide_st_style, unsafe_allow_html=True)
 # Loading model
 models_path = r"models/"
 xgboost_model = joblib.load(os.path.join(models_path, 'FXG Boost.pkl'))
