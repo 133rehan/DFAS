@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
 
 # Loading model
-models_path = r"models"
+models_path = r"models/"
 xgboost_model = joblib.load(os.path.join(models_path, 'FXG Boost.pkl'))
 gradient_boosting_model = joblib.load(os.path.join(models_path, 'FGradient_Boosting.pkl'))
 random_forest_model = joblib.load(os.path.join(models_path, 'FRandom_Forest.pkl'))
