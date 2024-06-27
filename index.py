@@ -111,6 +111,13 @@ def predict_audio(audio_file, models):
 
 # UI
 st.set_page_config(layout="wide", page_title="Deepfake Audio Detection", page_icon="")
+hide_st_style= """
+<style>
+#MainMenu {visibility:hidden;}
+footer    {visibility:hidden;}
+</style>
+"""
+st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Sidebar content
 audio_source = st.sidebar.selectbox("Select audio source:", ("Local Upload", "Internet Link", "Video File"))
