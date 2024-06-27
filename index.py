@@ -113,7 +113,7 @@ footer    {visibility:hidden;}
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # Sidebar content
-audio_source = st.sidebar.selectbox("Select audio source:", ("Audio FIle", "Video File"))
+audio_source = st.sidebar.selectbox("Select audio source:", ("Audio File", "Video File"))
 audio_file = None
 temp_files = []  # List to keep track of temporary files
 
