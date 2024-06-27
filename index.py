@@ -14,7 +14,7 @@ xgboost_model = joblib.load(os.path.join(models_path, 'FXG Boost.pkl'))
 gradient_boosting_model = joblib.load(os.path.join(models_path, 'FGradient_Boosting.pkl'))
 random_forest_model = joblib.load(os.path.join(models_path, 'FRandom_Forest.pkl'))
 
-# Assuming highly_correlated_indices contains the indices of retained features
+# highly corelated features  
 highly_correlated_indices = [155, 156, 158, 157, 1, 3, 16, 17, 15, 21, 22, 18, 14, 20, 19, 13, 23, 24]
 
 # Function to zero pad or truncate the signal
@@ -69,9 +69,9 @@ def extract_audio_from_video(video_file):
     video.audio.write_audiofile(audio_path)
     return audio_path
 
-# Getting confidence score from model
-def predict_audio(audio_file, model):
-    features, y, sr = extract_features(audio_file)
+# function to predict with a single model
+def predict_with_model(audio_file, model):
+    features, _, _ = extract_features(audio_file)
     features = features.reshape(1, -1)
     if hasattr(model, 'predict_proba'):
         probabilities = model.predict_proba(features)[0]
@@ -80,7 +80,27 @@ def predict_audio(audio_file, model):
     else:
         prediction = model.predict(features)[0]
         confidence = None  # If no probabilities, confidence remains undefined
-    return prediction, confidence, y, sr
+    return prediction, confidence
+
+# Function to predict audio using ensemble of models
+def predict_audio(audio_file, models):
+    xgboost_model, gradient_boosting_model, random_forest_model = models
+
+    # Get predictions and confidence scores from each model
+    xgboost_prediction, xgboost_confidence = predict_with_model(audio_file, xgboost_model)
+    gradient_boosting_prediction, gradient_boosting_confidence = predict_with_model(audio_file, gradient_boosting_model)
+    random_forest_prediction, random_forest_confidence = predict_with_model(audio_file, random_forest_model)
+
+    # Perform ensemble decision
+    predictions = [xgboost_prediction, gradient_boosting_prediction, random_forest_prediction]
+    confidences = [xgboost_confidence, gradient_boosting_confidence, random_forest_confidence]
+
+    # Calculate the majority vote
+    unique_predictions, counts = np.unique(predictions, return_counts=True)
+    majority_prediction = unique_predictions[np.argmax(counts)]
+    highest_confidence_model = np.argmax(confidences)
+
+    return majority_prediction, confidences[highest_confidence_model]
 
 # UI
 st.set_page_config(layout="wide", page_title="Deepfake Audio Detection", page_icon="")
@@ -135,40 +155,18 @@ st.title("Deepfake Audio Detection")
 if st.sidebar.button("Analyze"):
     if audio_path:
         with st.spinner("Analyzing audio..."):
-            xgboost_prediction, xgboost_confidence, y, sr = predict_audio(audio_path, xgboost_model)
-            gradient_boosting_prediction, gradient_boosting_confidence, _, _ = predict_audio(audio_path, gradient_boosting_model)
-            random_forest_prediction, random_forest_confidence, _, _ = predict_audio(audio_path, random_forest_model)
+            majority_prediction, highest_confidence = predict_audio(audio_path, [xgboost_model, gradient_boosting_model, random_forest_model])
 
-            # Display the audio analysis result for XGBoost
-            if xgboost_prediction == 1:
-                st.error(f"XGBoost Model: Your audio is Fake with Confidence of {xgboost_confidence*100:.2f}%")
-            elif xgboost_prediction == 0:
-                st.success(f"XGBoost Model: Your audio is Real with Confidence of {xgboost_confidence*100:.2f}%")
+            # Display the ensemble decision result
+            if majority_prediction == 1:
+                st.error(f"Your audio is Fake with Confidence of {highest_confidence*100:.2f}%")
+            elif majority_prediction == 0:
+                st.success(f"Your audio is Real with Confidence of {highest_confidence*100:.2f}%")
             else:
-                st.warning("XGBoost Model: The analysis is inconclusive.")
-            
-            # Display the audio analysis result for Gradient Boosting
-            if gradient_boosting_prediction == 1:
-                st.error(f"Gradient Boosting Model: Your audio is Fake with Confidence of {gradient_boosting_confidence*100:.2f}%")
-            elif gradient_boosting_prediction == 0:
-                st.success(f"Gradient Boosting Model: Your audio is Real with Confidence of {gradient_boosting_confidence*100:.2f}%")
-            else:
-                st.warning("Gradient Boosting Model: The analysis is inconclusive.")
-            
-            # Display the audio analysis result for Random Forest
-            if random_forest_prediction == 1:
-                st.error(f"Random Forest Model: Your audio is Fake with Confidence of {random_forest_confidence*100:.2f}%")
-            elif random_forest_prediction == 0:
-                st.success(f"Random Forest Model: Your audio is Real with Confidence of {random_forest_confidence*100:.2f}%")
-            else:
-                st.warning("Random Forest Model: The analysis is inconclusive.")
+                st.warning("The analysis is inconclusive.")
 
-            # Delete the temporary files after analysis
-            for temp_file in temp_files:
-                if os.path.exists(temp_file):
-                    os.remove(temp_file)
-
-
+            # Plotting the waveform
+            _, y, sr = extract_features(audio_path)
             fig_waveform, ax_waveform = plt.subplots(figsize=(5, 1))
             ax_waveform.plot(y)
             ax_waveform.axis('off')
@@ -176,3 +174,8 @@ if st.sidebar.button("Analyze"):
             fig_waveform.patch.set_alpha(0.0)  # Set the figure background to transparent
             ax_waveform.patch.set_alpha(0.0)   # Set the axes background to transparent
             st.pyplot(fig_waveform)
+
+            # Delete the temporary files after analysis
+            for temp_file in temp_files:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
