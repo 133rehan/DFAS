@@ -8,6 +8,7 @@ import librosa
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip
 
+
 # Loading model
 models_path = r"models/"
 xgboost_model = joblib.load(os.path.join(models_path, 'XG Boost.pkl'))
