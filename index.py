@@ -10,9 +10,9 @@ from moviepy.editor import VideoFileClip
 
 # Loading model
 models_path = r"models/"
-xgboost_model = joblib.load(os.path.join(models_path, 'FXG Boost.pkl'))
-gradient_boosting_model = joblib.load(os.path.join(models_path, 'FGradient_Boosting.pkl'))
-random_forest_model = joblib.load(os.path.join(models_path, 'FRandom_Forest.pkl'))
+xgboost_model = joblib.load(os.path.join(models_path, 'XG Boost.pkl'))
+gradient_boosting_model = joblib.load(os.path.join(models_path, 'Gradient_Boosting.pkl'))
+random_forest_model = joblib.load(os.path.join(models_path, 'Random_Forest.pkl'))
 
 # highly corelated features  
 highly_correlated_indices = [155, 156, 158, 157, 1, 3, 16, 17, 15, 21, 22, 18, 14, 20, 19, 13, 23, 24]
@@ -58,9 +58,9 @@ def extract_features(file_path, fixed_length=31, target_sr=16000):
     tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(y), sr=sr), axis=1)
 
     features = np.hstack((mfccs, chroma, mel, contrast, tonnetz))
-    selected_features = features[highly_correlated_indices]
+    #selected_features = features[highly_correlated_indices]
 
-    return selected_features, y, sr
+    return features, y, sr
 
 # Function to extract audio from video
 def extract_audio_from_video(video_file):
