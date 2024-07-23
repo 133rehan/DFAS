@@ -1,5 +1,4 @@
 from io import BytesIO
-import requests
 import streamlit as st
 import numpy as np
 import os
@@ -14,34 +13,16 @@ xgboost_model = joblib.load(os.path.join(models_path, 'XG Boost.pkl'))
 gradient_boosting_model = joblib.load(os.path.join(models_path, 'Gradient_Boosting.pkl'))
 random_forest_model = joblib.load(os.path.join(models_path, 'Random_Forest.pkl'))
 
-# highly corelated features  
-highly_correlated_indices = [155, 156, 158, 157, 1, 3, 16, 17, 15, 21, 22, 18, 14, 20, 19, 13, 23, 24]
 
-# Function to zero pad or truncate the signal
-def zero_pad(signal, target_length):
-    if len(signal) < target_length:
-        signal = np.pad(signal, (0, target_length - len(signal)), 'constant')
-    return signal
-
-def truncate(signal, target_length):
-    if len(signal) > target_length:
-        signal = signal[:target_length]
-    return signal
 
 # Function to extract features from the audio file
-def extract_features(file_path, fixed_length=31, target_sr=16000):
+def extract_features(file_path,  target_sr=16000):
     y, sr = librosa.load(file_path, sr=None)
     
     # Resample to the target sample rate
     if sr != target_sr:
         y = librosa.resample(y, orig_sr=sr, target_sr=target_sr)
         sr = target_sr
-
-    # Calculate the target length in samples
-    target_length = fixed_length * sr
-
-    # Ensure zero-padding or truncation
-    y = zero_pad(truncate(y, target_length), target_length)
 
     # Determine appropriate n_fft
     n_fft = min(512, len(y))
@@ -127,20 +108,6 @@ if audio_source == "Audio File":
             f.write(audio_bytes)
         st.sidebar.audio(BytesIO(audio_bytes), format="audio/mp3")
         temp_files.append(audio_path)
-
-# elif audio_source == "Internet Link":
-#     audio_link = st.sidebar.text_input("Enter the URL of the audio file")
-#     if audio_link:
-#         try:
-#             audio_data = requests.get(audio_link).content
-#             audio_file = BytesIO(audio_data)
-#             audio_path = "downloaded_audio.mp3"  # Temporary file path
-#             with open(audio_path, 'wb') as f:
-#                 f.write(audio_data)
-#             st.sidebar.audio(audio_file)
-#             temp_files.append(audio_path)
-#         except requests.RequestException as e:
-#             st.sidebar.error(f"Failed to download audio: {str(e)}")
 
 elif audio_source == "Video File":
     video_file = st.sidebar.file_uploader("Upload your video file", type=['mp4', 'avi', 'mov'])
