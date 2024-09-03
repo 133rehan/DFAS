@@ -7,4 +7,4 @@ matplotlib  # Latest version of Matplotlib
 moviepy      # Latest version of MoviePy
 xgboost     # Latest version of XGBoost
 pandas     # Latest version of Pandas
-scikit-learn # Latest version of Scikit-learn
+scikit-learn==1.2.2 # Latest version of Scikit-learn
