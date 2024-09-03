@@ -1,11 +1,11 @@
-streamlit   # Latest version of Streamlit
-numpy     # Latest version of NumPy
-requests   # Latest version of Requests
-joblib       # Latest version of Joblib
-librosa     # Latest version of Librosa
-matplotlib  # Latest version of Matplotlib
-moviepy      # Latest version of MoviePy
-xgboost     # Latest version of XGBoost
-pandas     # Latest version of Pandas
-scikit-learn # Latest version of Scikit-learn
-Cython
+streamlit==1.25.0   # Ensure Streamlit is updated
+numpy==1.26.4       # Latest stable version
+requests==2.31.0    # Latest stable version
+joblib==1.3.1       # Latest stable version
+librosa==0.11.2     # Latest stable version
+matplotlib==3.8.0   # Latest stable version
+moviepy==1.0.3      # Latest stable version
+xgboost==1.7.6      # Latest stable version
+pandas==2.1.3       # Latest stable version
+scikit-learn==0.24.2 # Compatible version with _gb_losses module
+Cython==0.29.36     # Latest stable version of Cython
